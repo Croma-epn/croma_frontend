@@ -5,6 +5,7 @@ import { LuUser, LuMail, LuCheck, LuLock } from "react-icons/lu";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
 
 type FormValues = {
     nombres: string;
@@ -42,8 +43,8 @@ export const RegistroFormulario = () => {
                 error={errors.email?.message}
             />
 
-            <CampoFormulario
-                id="contrasena" etiqueta="Contraseña" icono={LuLock} type="password"
+            <CampoContrasena
+                id="contrasena" etiqueta="Contraseña" icono={LuLock}
                 placeholder="Crea una contraseña" autoComplete="new-password"
                 {...register('contrasena', {
                     required: 'Escribe una contraseña.',
@@ -52,8 +53,8 @@ export const RegistroFormulario = () => {
                 })}
                 error={errors.contrasena?.message}
             />
-            <CampoFormulario
-                id="confirmarContrasena" etiqueta="Confirmar contraseña" icono={LuCheck} type="password"
+            <CampoContrasena
+                id="confirmarContrasena" etiqueta="Confirmar contraseña" icono={LuCheck}
                 placeholder="Repite tu contraseña" autoComplete="new-password"
                 {...register('confirmarContrasena', {
                     required: 'Confirma tu contraseña.',
