@@ -130,7 +130,7 @@
     transition: border-color 150ms, background-color 150ms;
   }
   .campo::placeholder { color: var(--color-texto-secundario); }
-  .campo:focus { border-color: var(--color-principal); outline: 3px solid var(--color-campo-foco); }
+  .campo:focus { border-color: var(--color-principal); outline: 3px solid var(--color-campo-foco); outline-offset: 2px; }
   .campo[aria-invalid="true"] { border-color: var(--color-error); background: var(--color-campo-error); }
   .tarjeta {
     padding: 20px;

@@ -1,6 +1,7 @@
 import { PanelInicio } from "@/components/panel-inicio/PanelInicio";
 import { RegistroFormulario } from "@/components/registro/registro-formulario/RegistroFormulario";
 import { fuenteTitulo } from "@/config/fuentes";
+import Link from "next/link";
 
 export default function RegistroPagina() {
     return (
@@ -11,7 +12,12 @@ export default function RegistroPagina() {
                     <h1 className={`mb-3 text-titulo leading-tight font-extrabold tracking-tighter ${fuenteTitulo.className}`}>Crea tu cuenta</h1>
                     <RegistroFormulario />
                 </div>
-
+                <p className="mt-5 text-center text-etiqueta text-texto-secundario">
+                    ¿Ya tienes cuenta?{' '}
+                    <Link href="/autenticacion/inicio-sesion"
+                        className="font-bold text-principal"
+                    >Iniciar sesión</Link>
+                </p>
             </main>
 
         </div>
