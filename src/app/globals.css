@@ -1,26 +1,157 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Los prefijos de @theme son de Tailwind; los nombres del proyecto van en español. */
+@theme {
+  --color-morado-50: #f6f3fd;
+  --color-morado-100: #ece7fa;
+  --color-morado-200: #c6b5f2;
+  --color-morado-300: #a894d7;
+  --color-morado-400: #8f77c7;
+  --color-morado-500: #6d4fc2;
+  --color-morado-600: #5d3ea5;
+  --color-morado-700: #372562;
+  --color-morado-800: #2a1e4a;
+  --color-morado-900: #201639;
+  --color-neutro-50: #ffffff;
+  --color-neutro-100: #f6f5f7;
+  --color-neutro-150: #e4e2e9;
+  --color-neutro-200: #d9d6e1;
+  --color-neutro-300: #c1bdc9;
+  --color-neutro-400: #9e9aa7;
+  --color-neutro-500: #767180;
+  --color-neutro-600: #5d5769;
+  --color-neutro-700: #474351;
+  --color-neutro-800: #23202b;
+  --color-neutro-900: #171028;
+  --color-peligro-100: #fff0f1;
+  --color-peligro-200: #f1d9dc;
+  --color-peligro-500: #c43d4b;
+  --color-peligro-700: #8f2836;
+  --color-advertencia-100: #fff8e1;
+  --color-advertencia-500: #ecc96b;
+  --color-advertencia-700: #6b4700;
+  --color-fondo: var(--color-neutro-100);
+  --color-superficie: var(--color-neutro-50);
+  --color-texto: var(--color-neutro-800);
+  --color-texto-secundario: var(--color-neutro-500);
+  --color-borde: var(--color-neutro-150);
+  --color-principal: var(--color-morado-500);
+  --color-principal-oscuro: #5a3fa8;
+  --color-principal-suave: var(--color-morado-100);
+  --color-principal-palido: var(--color-morado-50);
+  --color-error: var(--color-peligro-500);
+  --color-error-suave: var(--color-peligro-100);
+  --color-advertencia-texto: var(--color-advertencia-700);
+  --color-advertencia-fondo: var(--color-advertencia-100);
+  --color-campo-foco: #e7e1f4;
+  --color-campo-error: #fffafb;
+  --color-panel-texto: #cbc4dc;
+  --color-panel-subtitulo: #c2b9d8;
+  --color-diagrama-fondo: #352756;
+  --color-diagrama-borde: #655084;
+  --color-diagrama-cabecera: #4b3a7a;
+  --text-micro: 10px;
+  --text-nota: 11px;
+  --text-etiqueta: 12px;
+  --text-cuerpo: 14px;
+  --text-destacado: 16px;
+  --text-subtitulo: 18px;
+  --text-seccion: 20px;
+  --text-titulo: 29px;
+  --radius-control: 10px;
+  --radius-marca: 13px;
+  --radius-tarjeta: 15px;
+  --radius-modal: 18px;
+  --font-weight-boton: 650;
+  --shadow-boton: 0 3px 8px #37256222;
+  --shadow-tarjeta: 0 12px 34px rgba(60,40,110,.10);
+  --shadow-modal: 0 25px 80px #17102830;
+  --shadow-aviso: 0 12px 30px #17102824;
+  --shadow-halo-grande: 0 0 0 45px #ffffff06, 0 0 0 90px #ffffff05;
+  --shadow-halo-pequeno: 0 0 0 25px #ffffff05;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--fuente-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-titulo: var(--fuente-manrope), system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, monospace;
 }
 
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: var(--font-sans);
+    font-size: var(--text-cuerpo);
+    line-height: 1.5;
   }
-} */
+}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Componentes compartidos. La distribución de cada pantalla sigue en los TSX. */
+@layer components {
+  .boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-control);
+    font-weight: var(--font-weight-boton);
+    cursor: pointer;
+    transition: background-color 160ms, border-color 160ms;
+  }
+  .boton:focus-visible { outline: 3px solid var(--color-morado-200); outline-offset: 2px; }
+  .boton:disabled { opacity: 0.5; cursor: not-allowed; }
+  .boton-primario {
+    background: var(--color-principal);
+    color: var(--color-superficie);
+    box-shadow: var(--shadow-boton);
+  }
+  .boton-primario:hover { background: var(--color-principal-oscuro); }
+  .boton-secundario {
+    background: var(--color-superficie);
+    border-color: var(--color-borde);
+    color: var(--color-texto);
+  }
+  .boton-peligro {
+    background: var(--color-superficie);
+    border-color: var(--color-peligro-200);
+    color: var(--color-error);
+  }
+  .campo {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid var(--color-neutro-200);
+    border-radius: var(--radius-control);
+    background: var(--color-superficie);
+    color: var(--color-texto);
+    font-size: var(--text-cuerpo);
+    transition: border-color 150ms, background-color 150ms;
+  }
+  .campo::placeholder { color: var(--color-texto-secundario); }
+  .campo:focus { border-color: var(--color-principal); outline: 3px solid var(--color-campo-foco); }
+  .campo[aria-invalid="true"] { border-color: var(--color-error); background: var(--color-campo-error); }
+  .tarjeta {
+    padding: 20px;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radius-tarjeta);
+    background: var(--color-superficie);
+    box-shadow: var(--shadow-tarjeta);
+  }
+  .modal {
+    padding: 25px;
+    border-radius: var(--radius-modal);
+    background: var(--color-superficie);
+    box-shadow: var(--shadow-modal);
+  }
+  .fondo-modal { background: color-mix(in srgb, var(--color-neutro-900) 44%, transparent); }
+  .nodo-pantalla {
+    width: 260px;
+    min-height: 80px;
+    border: 1px solid #dcd9e3;
+    border-radius: var(--radius-marca);
+    background: var(--color-superficie);
+    box-shadow: 0 7px 20px #281d400c;
+  }
 }
