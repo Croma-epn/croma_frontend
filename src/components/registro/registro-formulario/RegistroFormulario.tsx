@@ -6,6 +6,7 @@ import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoF
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
+import { crearUsuario } from "@/actions/registro/crear-usuario/crear-usuario";
 
 type FormValues = {
     nombres: string;
@@ -23,7 +24,8 @@ export const RegistroFormulario = () => {
         trigger,
         setValue,
         control,
-        formState: { errors, touchedFields, isSubmitted } }
+        setError,
+        formState: { errors, touchedFields, isSubmitted, isSubmitting } }
         = useForm<FormValues>({
             mode: 'onTouched',
             defaultValues: {
@@ -39,9 +41,21 @@ export const RegistroFormulario = () => {
         name: 'nombres'
     });
 
-    const onSubmit: SubmitHandler<FormValues> = () => {
-        // Aquí se conectará el registro con el backend.
-        setMensaje('Los datos son válidos. El registro aún no está conectado al servidor.');
+    const onSubmit: SubmitHandler<FormValues> = async (datos) => {
+        try {
+            const resultado = await crearUsuario({
+                nombres: datos.nombres,
+                email: datos.email,
+                contrasena: datos.contrasena,
+            });
+            if (!resultado.ok) {
+                // Pendiente: mostrar los demás errores mediante un toast.
+                return;
+            }
+            // Pendiente: navegar a inicio de sesión con el correo y mostrar el toast.
+        } catch {
+            // Pendiente: mostrar el fallo de conexión mediante un toast.
+        }
     };
 
     return (
@@ -99,8 +113,9 @@ export const RegistroFormulario = () => {
                 }
             />
 
-            <BotonFormulario>Crear cuenta</BotonFormulario>
-            {mensaje && <p role="status" className="text-cuerpo text-principal">{mensaje}</p>}
+            <BotonFormulario disabled={isSubmitting}>
+                {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
+            </BotonFormulario>
         </form>
     );
 };
