@@ -4,7 +4,7 @@ import { useState } from "react";
 import { LuUser, LuMail, LuCheck, LuLock } from "react-icons/lu";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
 
 type FormValues = {
@@ -16,8 +16,27 @@ type FormValues = {
 
 export const RegistroFormulario = () => {
     const [mensaje, setMensaje] = useState('');
-    const { register, handleSubmit, getValues, formState: { errors } } = useForm<FormValues>({
-        defaultValues: { nombres: '', email: '', contrasena: '', confirmarContrasena: '' },
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        trigger,
+        setValue,
+        control,
+        formState: { errors, touchedFields, isSubmitted } }
+        = useForm<FormValues>({
+            mode: 'onTouched',
+            defaultValues: {
+                nombres: '',
+                email: '',
+                contrasena: '',
+                confirmarContrasena: ''
+            },
+        });
+
+    const nombres = useWatch({
+        control,
+        name: 'nombres'
     });
 
     const onSubmit: SubmitHandler<FormValues> = () => {
@@ -32,13 +51,19 @@ export const RegistroFormulario = () => {
                 placeholder="Ej. Ana Pérez" autoComplete="name" maxLength={100}
                 {...register('nombres', { validate: value => !!value.trim() || 'Escribe tu nombre completo.' })}
                 error={errors.nombres?.message}
+                aviso={
+                    nombres.length === 100
+                        ? 'Alcanzaste el máximo de 100 caracteres.'
+                        : undefined
+                }
             />
             <CampoFormulario
                 id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
                 placeholder="nombre@correo.com" autoComplete="email"
                 {...register('email', {
-                    required: 'Escribe tu correo electrónico.',
-                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Escribe un correo válido.' },
+                    required: 'Ingresa tu correo.',
+                    onChange: () => { void trigger('email'); },
+                    pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Ingresa un correo válido.' },
                 })}
                 error={errors.email?.message}
             />
@@ -47,8 +72,9 @@ export const RegistroFormulario = () => {
                 id="contrasena" etiqueta="Contraseña" icono={LuLock}
                 placeholder="Crea una contraseña" autoComplete="new-password"
                 {...register('contrasena', {
-                    required: 'Escribe una contraseña.',
+                    required: 'Usa al menos 6 caracteres.',
                     minLength: { value: 6, message: 'Usa al menos 6 caracteres.' },
+                    onChange: () => { void trigger('contrasena'); },
                     deps: ['confirmarContrasena'],
                 })}
                 error={errors.contrasena?.message}
@@ -57,10 +83,20 @@ export const RegistroFormulario = () => {
                 id="confirmarContrasena" etiqueta="Confirmar contraseña" icono={LuCheck}
                 placeholder="Repite tu contraseña" autoComplete="new-password"
                 {...register('confirmarContrasena', {
-                    required: 'Confirma tu contraseña.',
+                    required: 'Las contraseñas deben coincidir.',
                     validate: value => value === getValues('contrasena') || 'Las contraseñas deben coincidir.',
+                    onChange: (evento) => {
+                        setValue('confirmarContrasena', evento.target.value, {
+                            shouldTouch: true,
+                            shouldValidate: true,
+                        });
+                    },
                 })}
-                error={errors.confirmarContrasena?.message}
+                error={
+                    touchedFields.confirmarContrasena || isSubmitted
+                        ? errors.confirmarContrasena?.message
+                        : undefined
+                }
             />
 
             <BotonFormulario>Crear cuenta</BotonFormulario>
