@@ -130,12 +130,6 @@ export const RegistroFormulario = () => {
                         : undefined
                 }
             />
-            {/* <button
-                type="button"
-                onClick={() => toast.add({ title: 'Cuenta creada correctamente.', type: 'success' })}
-            >
-                Probar notificación
-            </button> */}
             <BotonFormulario disabled={isSubmitting}>
                 {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
             </BotonFormulario>
