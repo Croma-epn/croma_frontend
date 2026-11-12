@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function InicioPage() {
+export default function InicioPagina() {
     redirect("/autenticacion/registro");
 }
