@@ -6,6 +6,8 @@ import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonF
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
 import { crearUsuario } from "@/actions/registro/crear-usuario/crear-usuario";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 
 type FormValues = {
     nombres: string;
@@ -15,6 +17,7 @@ type FormValues = {
 };
 
 export const RegistroFormulario = () => {
+    const router = useRouter();
     const {
         register,
         handleSubmit,
@@ -46,15 +49,24 @@ export const RegistroFormulario = () => {
                 email: datos.email,
                 contrasena: datos.contrasena,
             });
+            if (resultado.ok) {
+                toast.add({ title: 'Cuenta creada correctamente.', type: 'success' });
+                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.email.trim().toLowerCase())}`);
+                return;
+            }
+            if (resultado.estado === 409) {
+                setError('email', { message: 'Este correo ya tiene una cuenta.' });
+                return;
+            }
             if (resultado.estado === 400) {
                 const errores = resultado.errores;
                 if (errores?.nombres) setError('nombres', { message: errores.nombres });
                 if (errores?.email) setError('email', { message: errores.email });
                 if (errores?.contrasena) setError('contrasena', { message: errores.contrasena });
             }
-            // Pendiente: mensajes de registro exitoso, correo duplicado y navegación.
+            toast.add({ title: resultado.mensaje, type: 'error' });
         } catch {
-            // Pendiente: mostrar el fallo de conexión mediante un toast.
+            toast.add({ title: 'No se pudo completar la solicitud. Inténtalo de nuevo.', type: 'error' });
         }
     };
 
@@ -118,7 +130,12 @@ export const RegistroFormulario = () => {
                         : undefined
                 }
             />
-
+            {/* <button
+                type="button"
+                onClick={() => toast.add({ title: 'Cuenta creada correctamente.', type: 'success' })}
+            >
+                Probar notificación
+            </button> */}
             <BotonFormulario disabled={isSubmitting}>
                 {isSubmitting ? 'Creando cuenta…' : 'Crear cuenta'}
             </BotonFormulario>

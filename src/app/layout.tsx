@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter, fuenteTitulo } from "@/config/fuentes";
+import { Toaster } from '@/components/ui/toast';
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -9,10 +11,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="es"
-    >
-      <body className={`${inter.variable} ${fuenteTitulo.variable} font-sans`}>{children}</body>
+    <html lang="es">
+      <body className={`${inter.variable} ${fuenteTitulo.variable} font-sans`}>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }
