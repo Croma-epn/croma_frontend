@@ -167,7 +167,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   return (
     <span
       data-slot="toast-icon"
-      className={cn("shrink-0 [&_svg]:pointer-events-none [&_svg]:size-[18px]", type === "error" ? "text-peligro-200" : "text-morado-300")}
+      className="shrink-0 text-morado-300 [&_svg]:pointer-events-none [&_svg]:size-[18px]"
     >
       {icon}
     </span>
@@ -178,7 +178,7 @@ function ToastList() {
   const { toasts } = ToastPrimitive.useToastManager()
 
   return toasts.map((toastItem) => (
-    <Toast key={toastItem.id} toast={toastItem} className={toastItem.type === "error" ? "bg-peligro-700" : undefined}>
+    <Toast key={toastItem.id} toast={toastItem}>
       <ToastContent>
         <ToastIcon type={toastItem.type} />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -186,7 +186,7 @@ function ToastList() {
           <ToastDescription />
         </div>
         {toastItem.actionProps && <ToastAction {...toastItem.actionProps} />}
-        {toastItem.type !== "error" && <ToastClose />}
+        <ToastClose />
       </ToastContent>
     </Toast>
   ))
