@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { LuUser, LuMail, LuCheck, LuLock } from "react-icons/lu";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
@@ -16,7 +15,6 @@ type FormValues = {
 };
 
 export const RegistroFormulario = () => {
-    const [mensaje, setMensaje] = useState('');
     const {
         register,
         handleSubmit,
@@ -48,22 +46,26 @@ export const RegistroFormulario = () => {
                 email: datos.email,
                 contrasena: datos.contrasena,
             });
-            if (!resultado.ok) {
-                // Pendiente: mostrar los demás errores mediante un toast.
-                return;
+            if (resultado.estado === 400) {
+                const errores = resultado.errores;
+                if (errores?.nombres) setError('nombres', { message: errores.nombres });
+                if (errores?.email) setError('email', { message: errores.email });
+                if (errores?.contrasena) setError('contrasena', { message: errores.contrasena });
             }
-            // Pendiente: navegar a inicio de sesión con el correo y mostrar el toast.
+            // Pendiente: mensajes de registro exitoso, correo duplicado y navegación.
         } catch {
             // Pendiente: mostrar el fallo de conexión mediante un toast.
         }
     };
 
     return (
-        <form noValidate onSubmit={handleSubmit(onSubmit)} onChange={() => setMensaje('')} className="flex flex-col gap-7">
+        <form noValidate onSubmit={handleSubmit(onSubmit)} aria-busy={isSubmitting} className="flex flex-col gap-7">
             <CampoFormulario
                 id="nombres" etiqueta="Nombre completo" icono={LuUser}
                 placeholder="Ej. Ana Pérez" autoComplete="name" maxLength={100}
-                {...register('nombres', { validate: value => !!value.trim() || 'Escribe tu nombre completo.' })}
+                {...register('nombres', {
+                    validate: value => !!value.trim() || 'Escribe tu nombre completo.',
+                })}
                 error={errors.nombres?.message}
                 aviso={
                     nombres.length === 100
@@ -73,7 +75,7 @@ export const RegistroFormulario = () => {
             />
             <CampoFormulario
                 id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
-                placeholder="nombre@correo.com" autoComplete="email"
+                placeholder="nombre@correo.com" autoComplete="email" maxLength={254}
                 {...register('email', {
                     required: 'Ingresa tu correo.',
                     onChange: () => { void trigger('email'); },
@@ -88,7 +90,11 @@ export const RegistroFormulario = () => {
                 {...register('contrasena', {
                     required: 'Usa al menos 6 caracteres.',
                     minLength: { value: 6, message: 'Usa al menos 6 caracteres.' },
-                    onChange: () => { void trigger('contrasena'); },
+                    onChange: () => {
+                        void trigger(touchedFields.confirmarContrasena || isSubmitted
+                            ? ['contrasena', 'confirmarContrasena']
+                            : 'contrasena');
+                    },
                     deps: ['confirmarContrasena'],
                 })}
                 error={errors.contrasena?.message}

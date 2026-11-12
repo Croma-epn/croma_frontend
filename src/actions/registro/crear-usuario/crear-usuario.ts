@@ -9,6 +9,7 @@ interface DatosRegistro {
 interface ResultadoRegistro {
     ok: boolean;
     mensaje: string;
+    estado?: number;
     errores?: Partial<Record<keyof DatosRegistro, string>>;
 }
 
@@ -20,8 +21,8 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
     if (typeof datos.email !== 'string' || datos.email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email.trim())) {
         return { ok: false, mensaje: 'Ingresa un correo válido.' };
     }
-    if (typeof datos.contrasena !== 'string' || datos.contrasena.length < 6 || datos.contrasena.length > 128) {
-        return { ok: false, mensaje: 'La contraseña debe tener entre 6 y 128 caracteres.' };
+    if (typeof datos.contrasena !== 'string' || datos.contrasena.length < 6) {
+        return { ok: false, mensaje: 'Usa al menos 6 caracteres.' };
     }
 
     const urlBase = process.env.API_BASE_URL;
@@ -31,12 +32,12 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
     }
 
     try {
-        const respuesta = await fetch(`${urlBase.replace(/\/$/, '')}/v1/usuarios/registro/`, {
+        const respuesta = await fetch(`${urlBase.replace(/\/$/, '')}/usuarios/registro/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({
                 nombre: datos.nombres.trim(),
-                correo: datos.email.trim(),
+                correo: datos.email.trim().toLowerCase(),
                 contrasena: datos.contrasena,
             }),
             cache: 'no-store',
@@ -44,22 +45,21 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
         });
 
         if (respuesta.status === 201) {
-            return { ok: true, mensaje: 'Cuenta creada correctamente.' };
+            return { ok: true, estado: 201, mensaje: 'Cuenta creada correctamente.' };
         }
         if (respuesta.status === 409) {
-            return { ok: false, mensaje: 'Este correo ya tiene una cuenta.', errores: { email: 'Este correo ya tiene una cuenta.' } };
+            return { ok: false, estado: 409, mensaje: 'Este correo ya tiene una cuenta.', errores: { email: 'Este correo ya tiene una cuenta.' } };
         }
-        if (respuesta.status === 400 || respuesta.status === 422) {
-            // El esquema no documenta el cuerpo de error: solo leemos los campos conocidos.
+        if (respuesta.status === 400) {
             const cuerpo = await respuesta.json().catch(() => null);
             const errores: ResultadoRegistro['errores'] = {};
             const campos = { nombre: 'nombres', correo: 'email', contrasena: 'contrasena' } as const;
             for (const campo of Object.keys(campos) as (keyof typeof campos)[]) {
-                const valor = cuerpo?.[campo];
+                const valor = cuerpo?.errores?.[campo];
                 const mensaje = Array.isArray(valor) ? valor[0] : valor;
                 if (typeof mensaje === 'string') errores[campos[campo]] = mensaje;
             }
-            return { ok: false, mensaje: 'No se pudo crear la cuenta. Revisa los datos ingresados.', errores };
+            return { ok: false, estado: 400, mensaje: 'Revisa los datos ingresados.', errores };
         }
         return { ok: false, mensaje: 'No se pudo crear la cuenta. Inténtalo más tarde.' };
     } catch {
