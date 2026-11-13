@@ -3,7 +3,7 @@
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
-import { useForm, UseFormGetValues } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { LuLock, LuMail } from "react-icons/lu";
 
 type FormValues = {
@@ -15,12 +15,8 @@ export const InicioSesionFormulario = () => {
     const {
         register,
         handleSubmit,
-        getValues,
         trigger,
-        setValue,
-        control,
-        setError,
-        formState: { errors, touchedFields, isSubmitted, isSubmitting } }
+        formState: { errors, isSubmitting } }
         = useForm<FormValues>({
             mode: 'onTouched',
             defaultValues: {
@@ -29,8 +25,12 @@ export const InicioSesionFormulario = () => {
             },
         });
 
+    const onSubmit = () => {
+        // La conexión con el backend se implementará en otra tarea.
+    };
+
     return (
-        <form action="" className="flex flex-col gap-7" >
+        <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-7" >
             <CampoFormulario
                 id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
                 placeholder="nombre@correo.com" autoComplete="email" maxLength={254}
@@ -44,10 +44,9 @@ export const InicioSesionFormulario = () => {
 
             <CampoContrasena
                 id="contrasena" etiqueta="Contraseña" icono={LuLock}
-                placeholder="Crea una contraseña" autoComplete="new-password"
+                placeholder="Ingresa tu contraseña" autoComplete="current-password"
                 {...register('contrasena', {
-                    required: 'Usa al menos 6 caracteres.',
-                    minLength: { value: 6, message: 'Usa al menos 6 caracteres.' },
+                    required: 'Ingresa tu contraseña.',
                 })}
                 error={errors.contrasena?.message}
             />

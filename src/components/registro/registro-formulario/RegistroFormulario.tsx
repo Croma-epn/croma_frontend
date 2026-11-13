@@ -100,7 +100,7 @@ export const RegistroFormulario = () => {
                 id="contrasena" etiqueta="Contraseña" icono={LuLock}
                 placeholder="Crea una contraseña" autoComplete="new-password"
                 {...register('contrasena', {
-                    required: 'Usa al menos 6 caracteres.',
+                    required: 'Ingresa tu contraseña.',
                     minLength: { value: 6, message: 'Usa al menos 6 caracteres.' },
                     onChange: () => {
                         void trigger(touchedFields.confirmarContrasena || isSubmitted
