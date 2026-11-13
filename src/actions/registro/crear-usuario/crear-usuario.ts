@@ -2,7 +2,7 @@
 
 interface DatosRegistro {
     nombres: string;
-    email: string;
+    correo: string;
     contrasena: string;
 }
 
@@ -18,7 +18,7 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
     if (typeof datos?.nombres !== 'string' || !datos.nombres.trim() || datos.nombres.length > 100) {
         return { ok: false, mensaje: 'Revisa tu nombre completo.' };
     }
-    if (typeof datos.email !== 'string' || datos.email.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email.trim())) {
+    if (typeof datos.correo !== 'string' || datos.correo.trim().length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.correo.trim())) {
         return { ok: false, mensaje: 'Ingresa un correo válido.' };
     }
     if (typeof datos.contrasena !== 'string' || datos.contrasena.length < 6) {
@@ -37,7 +37,7 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
             body: JSON.stringify({
                 nombre: datos.nombres.trim(),
-                correo: datos.email.trim().toLowerCase(),
+                correo: datos.correo.trim().toLowerCase(),
                 contrasena: datos.contrasena,
             }),
             cache: 'no-store',
@@ -48,12 +48,12 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
             return { ok: true, estado: 201, mensaje: 'Cuenta creada correctamente.' };
         }
         if (respuesta.status === 409) {
-            return { ok: false, estado: 409, mensaje: 'Este correo ya tiene una cuenta.', errores: { email: 'Este correo ya tiene una cuenta.' } };
+            return { ok: false, estado: 409, mensaje: 'Este correo ya tiene una cuenta.', errores: { correo: 'Este correo ya tiene una cuenta.' } };
         }
         if (respuesta.status === 400) {
             const cuerpo = await respuesta.json().catch(() => null);
             const errores: ResultadoRegistro['errores'] = {};
-            const campos = { nombre: 'nombres', correo: 'email', contrasena: 'contrasena' } as const;
+            const campos = { nombre: 'nombres', correo: 'correo', contrasena: 'contrasena' } as const;
             for (const campo of Object.keys(campos) as (keyof typeof campos)[]) {
                 const valor = cuerpo?.errores?.[campo];
                 const mensaje = Array.isArray(valor) ? valor[0] : valor;

@@ -11,7 +11,7 @@ import { toast } from "@/components/ui/toast";
 
 type FormValues = {
     nombres: string;
-    email: string;
+    correo: string;
     contrasena: string;
     confirmarContrasena: string;
 };
@@ -31,7 +31,7 @@ export const RegistroFormulario = () => {
             mode: 'onTouched',
             defaultValues: {
                 nombres: '',
-                email: '',
+                correo: '',
                 contrasena: '',
                 confirmarContrasena: ''
             },
@@ -46,22 +46,22 @@ export const RegistroFormulario = () => {
         try {
             const resultado = await crearUsuario({
                 nombres: datos.nombres,
-                email: datos.email,
+                correo: datos.correo,
                 contrasena: datos.contrasena,
             });
             if (resultado.ok) {
                 toast.add({ title: 'Cuenta creada correctamente.', type: 'success' });
-                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.email.trim().toLowerCase())}`);
+                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.correo.trim().toLowerCase())}`);
                 return;
             }
             if (resultado.estado === 409) {
-                setError('email', { message: 'Este correo ya tiene una cuenta.' });
+                setError('correo', { message: 'Este correo ya tiene una cuenta.' });
                 return;
             }
             if (resultado.estado === 400) {
                 const errores = resultado.errores;
                 if (errores?.nombres) setError('nombres', { message: errores.nombres });
-                if (errores?.email) setError('email', { message: errores.email });
+                if (errores?.correo) setError('correo', { message: errores.correo });
                 if (errores?.contrasena) setError('contrasena', { message: errores.contrasena });
             }
             toast.add({ title: resultado.mensaje, type: 'error' });
@@ -86,14 +86,14 @@ export const RegistroFormulario = () => {
                 }
             />
             <CampoFormulario
-                id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
+                id="correo" etiqueta="Correo electrónico" icono={LuMail} type="email"
                 placeholder="nombre@correo.com" autoComplete="email" maxLength={254}
-                {...register('email', {
+                {...register('correo', {
                     required: 'Ingresa tu correo.',
-                    onChange: () => { void trigger('email'); },
+                    onChange: () => { void trigger('correo'); },
                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Ingresa un correo válido.' },
                 })}
-                error={errors.email?.message}
+                error={errors.correo?.message}
             />
 
             <CampoContrasena

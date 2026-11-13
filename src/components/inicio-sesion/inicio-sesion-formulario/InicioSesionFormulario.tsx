@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { LuLock, LuMail } from "react-icons/lu";
 
 type FormValues = {
-    email: string;
+    correo: string;
     contrasena: string;
 };
 
@@ -20,7 +20,7 @@ export const InicioSesionFormulario = () => {
         = useForm<FormValues>({
             mode: 'onTouched',
             defaultValues: {
-                email: '',
+                correo: '',
                 contrasena: '',
             },
         });
@@ -32,14 +32,14 @@ export const InicioSesionFormulario = () => {
     return (
         <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-7" >
             <CampoFormulario
-                id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
+                id="correo" etiqueta="Correo electrónico" icono={LuMail} type="email"
                 placeholder="nombre@correo.com" autoComplete="email" maxLength={254}
-                {...register('email', {
+                {...register('correo', {
                     required: 'Ingresa tu correo.',
-                    onChange: () => { void trigger('email'); },
+                    onChange: () => { void trigger('correo'); },
                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Ingresa un correo válido.' },
                 })}
-                error={errors.email?.message}
+                error={errors.correo?.message}
             />
 
             <CampoContrasena
