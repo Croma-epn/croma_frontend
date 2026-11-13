@@ -3,7 +3,7 @@
 export default function ProyectosPagina() {
     return (
         <div>
-            <h1>Hello Page</h1>
+            <h1>Mis proyectos</h1>
         </div>
     );
 }

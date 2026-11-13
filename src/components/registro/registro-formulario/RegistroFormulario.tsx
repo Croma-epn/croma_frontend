@@ -5,7 +5,7 @@ import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoF
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
-import { crearUsuario } from "@/actions/registro/crear-usuario/crear-usuario";
+import { crearUsuario } from "@/actions/registro/crear-usuario";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 

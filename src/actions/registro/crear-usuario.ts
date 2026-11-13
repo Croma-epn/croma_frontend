@@ -25,7 +25,7 @@ export async function crearUsuario(datos: DatosRegistro): Promise<ResultadoRegis
         return { ok: false, mensaje: 'Usa al menos 6 caracteres.' };
     }
 
-    const urlBase = process.env.API_BASE_URL;
+    const urlBase = process.env.NEXT_PUBLIC_API_URL;
 
     if (!urlBase) {
         return { ok: false, mensaje: 'No se pudo conectar con el servicio de registro.' };
