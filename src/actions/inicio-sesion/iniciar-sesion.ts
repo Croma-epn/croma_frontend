@@ -17,7 +17,6 @@ function esRespuestaInicioSesion(valor: unknown): valor is RespuestaInicioSesion
     if (!esObjeto(valor) || !esObjeto(valor.usuario)) return false;
 
     return (
-        typeof valor.mensaje === "string" &&
         typeof valor.access === "string" &&
         valor.access.length > 0 &&
         typeof valor.usuario.id === "number" &&
@@ -68,9 +67,7 @@ export async function iniciarSesion(
             estado: respuesta.status,
             mensaje: esObjeto(datos) && typeof datos.mensaje === "string"
                 ? datos.mensaje
-                : respuesta.status === 401
-                    ? "No encontramos una cuenta con esos datos. Revisa tus credenciales o crea una cuenta."
-                    : "No se pudo iniciar sesión. Inténtalo de nuevo.",
+                : undefined,
             errores,
         };
     }
@@ -88,7 +85,7 @@ export async function iniciarSesion(
 
     return {
         ok: true,
-        mensaje: datos.mensaje,
+        mensaje: typeof datos.mensaje === "string" ? datos.mensaje : undefined,
         usuario: datos.usuario,
     };
 }

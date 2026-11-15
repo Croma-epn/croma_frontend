@@ -6,7 +6,7 @@ export interface CredencialesInicioSesion {
 }
 
 export interface RespuestaInicioSesion {
-    mensaje: string;
+    mensaje?: string;
     usuario: Usuario;
     access: string;
 }
@@ -16,10 +16,10 @@ export interface RespuestaRenovacionSesion {
 }
 
 export interface RespuestaCierreSesion {
-    mensaje: string;
+    mensaje?: string;
 }
 
 export interface RespuestaErrorApi {
-    mensaje: string;
+    mensaje?: string;
     errores: Record<string, string[]>;
 }

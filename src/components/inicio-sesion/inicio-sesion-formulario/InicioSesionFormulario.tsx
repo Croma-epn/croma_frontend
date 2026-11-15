@@ -34,7 +34,9 @@ export const InicioSesionFormulario = () => {
 
             if (resultado.ok) {
                 router.replace('/proyectos');
-                toast.add({ title: resultado.mensaje, type: 'success' });
+                if (resultado.mensaje) {
+                    toast.add({ title: resultado.mensaje, type: 'success' });
+                }
                 return;
             }
 
@@ -43,7 +45,9 @@ export const InicioSesionFormulario = () => {
                 if (mensaje) setError(campo, { type: 'server', message: mensaje });
             }
 
-            toast.add({ title: resultado.mensaje, type: 'error' });
+            if (resultado.mensaje) {
+                toast.add({ title: resultado.mensaje, type: 'error' });
+            }
         } catch {
             toast.add({
                 title: 'No se pudo iniciar sesión. Inténtalo de nuevo.',

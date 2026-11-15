@@ -1,9 +1,9 @@
 import type { Usuario } from "@/interfaces/usuario/usuario";
-import { api, limpiarAccessToken, renovarSesion } from "@/lib/api";
+import { api, ErrorRespuestaApi, limpiarAccessToken, renovarSesion } from "@/lib/api";
 
 export type ResultadoRestauracionSesion =
     | { ok: true; usuario: Usuario }
-    | { ok: false; motivo: "sin-sesion" | "error"; mensaje: string };
+    | { ok: false; motivo: "sin-sesion" | "error"; mensaje?: string };
 
 let restauracionEnCurso: Promise<ResultadoRestauracionSesion> | null = null;
 
@@ -23,18 +23,22 @@ async function solicitarRestauracion(): Promise<ResultadoRestauracionSesion> {
             return {
                 ok: false,
                 motivo: "sin-sesion",
-                mensaje: "Tu sesión expiró. Inicia sesión de nuevo.",
             };
         }
 
         const respuesta = await api("/usuarios/yo/", { cache: "no-store" });
+        const datos: unknown = await respuesta.json().catch(() => null);
+        const mensaje = typeof datos === "object" && datos !== null
+            && "mensaje" in datos && typeof datos.mensaje === "string"
+            ? datos.mensaje
+            : undefined;
 
         if (respuesta.status === 401) {
             limpiarAccessToken();
             return {
                 ok: false,
                 motivo: "sin-sesion",
-                mensaje: "Tu sesión expiró. Inicia sesión de nuevo.",
+                mensaje,
             };
         }
 
@@ -42,11 +46,11 @@ async function solicitarRestauracion(): Promise<ResultadoRestauracionSesion> {
             return {
                 ok: false,
                 motivo: "error",
-                mensaje: "No se pudo consultar tu perfil. Inténtalo de nuevo.",
+                mensaje,
             };
         }
 
-        const usuario: unknown = await respuesta.json();
+        const usuario = datos;
 
         if (!esUsuario(usuario)) {
             return {
@@ -57,11 +61,13 @@ async function solicitarRestauracion(): Promise<ResultadoRestauracionSesion> {
         }
 
         return { ok: true, usuario };
-    } catch {
+    } catch (error) {
         return {
             ok: false,
             motivo: "error",
-            mensaje: "No se pudo comprobar tu sesión. Inténtalo de nuevo.",
+            mensaje: error instanceof ErrorRespuestaApi
+                ? error.mensaje
+                : "No se pudo comprobar tu sesión. Inténtalo de nuevo.",
         };
     }
 }

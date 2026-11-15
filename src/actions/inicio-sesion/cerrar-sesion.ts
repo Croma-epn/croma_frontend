@@ -8,7 +8,7 @@ import {
 
 export type ResultadoCierreSesion =
     | ({ ok: true } & RespuestaCierreSesion)
-    | { ok: false; mensaje: string; estado?: number };
+    | { ok: false; mensaje?: string; estado?: number };
 
 let cierreEnCurso: Promise<ResultadoCierreSesion> | null = null;
 
@@ -17,19 +17,24 @@ async function solicitarCierreSesion(): Promise<ResultadoCierreSesion> {
         await prepararCierreSesion();
 
         const respuesta = await api("/usuarios/logout/", { method: "POST" });
+        const datos: unknown = await respuesta.json().catch(() => null);
+        const mensaje = typeof datos === "object" && datos !== null
+            && "mensaje" in datos && typeof datos.mensaje === "string"
+            ? datos.mensaje
+            : undefined;
 
         if (!respuesta.ok) {
             return {
                 ok: false,
                 estado: respuesta.status,
-                mensaje: "No se pudo cerrar sesión. Inténtalo de nuevo.",
+                mensaje,
             };
         }
 
         // El estado HTTP confirma el cierre aunque el cuerpo no sea JSON válido.
         limpiarAccessToken();
 
-        return { ok: true, mensaje: "Sesión cerrada." };
+        return { ok: true, mensaje };
     } catch {
         return {
             ok: false,

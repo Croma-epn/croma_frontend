@@ -42,7 +42,7 @@ export const ControlSesion = ({ children }: { children: ReactNode }) => {
     if (estado === "error") {
         return (
             <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-fondo px-6 text-center text-texto">
-                <p>No pudimos comprobar tu sesión.</p>
+                {mensajeError && <p>{mensajeError}</p>}
                 <button
                     type="button"
                     className="boton boton-primario"

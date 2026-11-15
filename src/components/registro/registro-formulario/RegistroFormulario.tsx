@@ -50,21 +50,25 @@ export const RegistroFormulario = () => {
                 contrasena: datos.contrasena,
             });
             if (resultado.ok) {
-                toast.add({ title: 'Cuenta creada correctamente.', type: 'success' });
+                if (resultado.mensaje) {
+                    toast.add({ title: resultado.mensaje, type: 'success' });
+                }
                 router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.correo.trim().toLowerCase())}`);
                 return;
             }
             if (resultado.estado === 409) {
-                setError('correo', { message: 'Este correo ya tiene una cuenta.' });
+                setError('correo', { message: resultado.errores?.correo ?? resultado.mensaje });
                 return;
             }
-            if (resultado.estado === 400) {
+            if (resultado.errores) {
                 const errores = resultado.errores;
                 if (errores?.nombres) setError('nombres', { message: errores.nombres });
                 if (errores?.correo) setError('correo', { message: errores.correo });
                 if (errores?.contrasena) setError('contrasena', { message: errores.contrasena });
             }
-            toast.add({ title: resultado.mensaje, type: 'error' });
+            if (resultado.mensaje) {
+                toast.add({ title: resultado.mensaje, type: 'error' });
+            }
         } catch {
             toast.add({ title: 'No se pudo completar la solicitud. Inténtalo de nuevo.', type: 'error' });
         }

@@ -1,5 +1,11 @@
 const URL_API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
+export class ErrorRespuestaApi extends Error {
+    constructor(public readonly mensaje?: string) {
+        super(mensaje);
+    }
+}
+
 let accessToken: string | null = null;
 let renovacionEnCurso: Promise<boolean> | null = null;
 let cierreEnCurso = false;
@@ -55,7 +61,12 @@ async function solicitarRenovacion(): Promise<boolean> {
     }
 
     if (!respuesta.ok) {
-        throw new Error("No se pudo renovar la sesión. Inténtalo de nuevo.");
+        const datos: unknown = await respuesta.json().catch(() => null);
+        const mensaje = typeof datos === "object" && datos !== null
+            && "mensaje" in datos && typeof datos.mensaje === "string"
+            ? datos.mensaje
+            : undefined;
+        throw new ErrorRespuestaApi(mensaje);
     }
 
     const datos: unknown = await respuesta.json();

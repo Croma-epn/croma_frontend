@@ -64,7 +64,7 @@ export const useAutenticacionStore = create<AutenticacionStore>()((set, get) => 
                     if (resultado.ok) {
                         set({ usuario: resultado.usuario, estado: "autenticado", mensajeError: null });
                     } else {
-                        set({ mensajeError: resultado.mensaje });
+                        set({ mensajeError: resultado.mensaje ?? null });
                     }
                     return resultado;
                 } finally {
@@ -91,7 +91,7 @@ export const useAutenticacionStore = create<AutenticacionStore>()((set, get) => 
                 } else if (resultado.motivo === "sin-sesion") {
                     set({ usuario: null, estado: "no-autenticado", mensajeError: null });
                 } else {
-                    set({ usuario: null, estado: "error", mensajeError: resultado.mensaje });
+                    set({ usuario: null, estado: "error", mensajeError: resultado.mensaje ?? null });
                 }
                 return resultado;
             }).finally(() => { restauracionEnCurso = null; });
@@ -110,7 +110,7 @@ export const useAutenticacionStore = create<AutenticacionStore>()((set, get) => 
                         set({ usuario: null, estado: "no-autenticado", mensajeError: null });
                     } else {
                         // Conserva el usuario para poder reintentar el cierre.
-                        set({ mensajeError: resultado.mensaje });
+                        set({ mensajeError: resultado.mensaje ?? null });
                     }
                     return resultado;
                 } finally {
