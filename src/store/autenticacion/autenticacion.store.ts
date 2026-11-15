@@ -24,6 +24,8 @@ type EstadoSesion =
     | "error";
 
 interface AutenticacionStore {
+    correoRegistro: string | null;
+    establecerCorreoRegistro: (correo: string | null) => void;
     usuario: Usuario | null;
     estado: EstadoSesion;
     mensajeError: string | null;
@@ -48,6 +50,8 @@ export const useAutenticacionStore = create<AutenticacionStore>()((set, get) => 
     }
 
     return {
+        correoRegistro: null,
+        establecerCorreoRegistro: (correo) => set({ correoRegistro: correo }),
         usuario: null,
         estado: "sin-comprobar",
         mensajeError: null,

@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/toast";
 import type { CredencialesInicioSesion } from "@/interfaces/autenticacion/autenticacion";
 import { useAutenticacionStore } from "@/store/autenticacion/autenticacion.store";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { LuLock, LuMail } from "react-icons/lu";
 
@@ -14,11 +15,14 @@ export const InicioSesionFormulario = () => {
     const router = useRouter();
     const iniciarSesion = useAutenticacionStore((estado) => estado.iniciarSesion);
     const iniciandoSesion = useAutenticacionStore((estado) => estado.iniciandoSesion);
+    const correoRegistro = useAutenticacionStore((estado) => estado.correoRegistro);
+    const establecerCorreoRegistro = useAutenticacionStore((estado) => estado.establecerCorreoRegistro);
     const {
         register,
         handleSubmit,
         trigger,
         setError,
+        setValue,
         formState: { errors, isSubmitting } }
         = useForm<CredencialesInicioSesion>({
             mode: 'onTouched',
@@ -27,6 +31,13 @@ export const InicioSesionFormulario = () => {
                 contrasena: '',
             },
         });
+
+    useEffect(() => {
+        if (correoRegistro) {
+            setValue('correo', correoRegistro);
+            establecerCorreoRegistro(null);
+        }
+    }, [correoRegistro, establecerCorreoRegistro, setValue]);
 
     const onSubmit = async (datos: CredencialesInicioSesion) => {
         try {

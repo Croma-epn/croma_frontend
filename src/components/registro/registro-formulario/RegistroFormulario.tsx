@@ -8,6 +8,7 @@ import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoC
 import { crearUsuario } from "@/actions/registro/crear-usuario";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { useAutenticacionStore } from "@/store/autenticacion/autenticacion.store";
 
 type FormValues = {
     nombres: string;
@@ -18,6 +19,7 @@ type FormValues = {
 
 export const RegistroFormulario = () => {
     const router = useRouter();
+    const establecerCorreoRegistro = useAutenticacionStore((estado) => estado.establecerCorreoRegistro);
     const {
         register,
         handleSubmit,
@@ -53,7 +55,8 @@ export const RegistroFormulario = () => {
                 if (resultado.mensaje) {
                     toast.add({ title: resultado.mensaje, type: 'success' });
                 }
-                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.correo.trim().toLowerCase())}`);
+                establecerCorreoRegistro(datos.correo.trim().toLowerCase());
+                router.replace('/autenticacion/inicio-sesion');
                 return;
             }
             if (resultado.estado === 409) {
