@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/toast";
 import { useRef, useState } from "react";
 import { DialogoCierreSesion } from "@/components/inicio-sesion/confirmacion-cierre-sesion/DialogoCierreSesion";
 import { LuLogOut } from "react-icons/lu";
@@ -22,8 +24,35 @@ interface EncabezadoProps {
 
 export const Encabezado = ({ onSolicitarCierreSesion }: EncabezadoProps) => {
     const usuario = useAutenticacionStore((sesion) => sesion.usuario);
+    const cerrarSesion = useAutenticacionStore((sesion) => sesion.cerrarSesion);
+    const cerrandoSesion = useAutenticacionStore((sesion) => sesion.cerrandoSesion);
+    const router = useRouter();
     const [confirmacionAbierta, setConfirmacionAbierta] = useState(false);
-    const botonAvatar = useRef<HTMLButtonElement>(null);
+    const [procesandoCierre, setProcesandoCierre] = useState(false);
+    const cierreSolicitado = useRef(false);
+
+    const confirmarCierreSesion = async () => {
+        if (cierreSolicitado.current) return;
+        cierreSolicitado.current = true;
+        setProcesandoCierre(true);
+
+        try {
+            const resultado = await cerrarSesion();
+            if (!resultado.ok) {
+                toast.add({ title: resultado.mensaje, type: "error" });
+                return;
+            }
+
+            setConfirmacionAbierta(false);
+            router.replace("/autenticacion/inicio-sesion");
+            toast.add({ title: resultado.mensaje, type: "success" });
+        } catch {
+            toast.add({ title: "No se pudo cerrar sesión. Inténtalo de nuevo.", type: "error" });
+        } finally {
+            cierreSolicitado.current = false;
+            setProcesandoCierre(false);
+        }
+    };
 
     if (!usuario) return null;
 
@@ -38,7 +67,6 @@ export const Encabezado = ({ onSolicitarCierreSesion }: EncabezadoProps) => {
 
             <DropdownMenu>
                 <DropdownMenuTrigger
-                    ref={botonAvatar}
                     aria-label={`Abrir menú de ${usuario.nombre}`}
                     className="flex size-9 cursor-pointer items-center justify-center rounded-full border border-morado-200/30 bg-principal-suave text-etiqueta font-bold text-principal outline-none transition-[border-color,box-shadow] hover:border-morado-200 hover:ring-3 hover:ring-principal-suave focus-visible:border-morado-200 focus-visible:ring-3 focus-visible:ring-morado-200"
                 >
@@ -79,7 +107,8 @@ export const Encabezado = ({ onSolicitarCierreSesion }: EncabezadoProps) => {
             <DialogoCierreSesion
                 abierto={confirmacionAbierta}
                 onAbiertoChange={setConfirmacionAbierta}
-                volverFocoA={botonAvatar}
+                onConfirmar={confirmarCierreSesion}
+                cerrando={procesandoCierre || cerrandoSesion}
             />
         </header>
     );
