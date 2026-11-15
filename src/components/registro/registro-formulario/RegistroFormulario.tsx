@@ -5,13 +5,13 @@ import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoF
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { CampoContrasena } from "@/components/formulario/campo-contrasena/CampoContrasena";
-import { crearUsuario } from "@/actions/registro/crear-usuario/crear-usuario";
+import { crearUsuario } from "@/actions/registro/crear-usuario";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
 
 type FormValues = {
     nombres: string;
-    email: string;
+    correo: string;
     contrasena: string;
     confirmarContrasena: string;
 };
@@ -31,7 +31,7 @@ export const RegistroFormulario = () => {
             mode: 'onTouched',
             defaultValues: {
                 nombres: '',
-                email: '',
+                correo: '',
                 contrasena: '',
                 confirmarContrasena: ''
             },
@@ -46,25 +46,29 @@ export const RegistroFormulario = () => {
         try {
             const resultado = await crearUsuario({
                 nombres: datos.nombres,
-                email: datos.email,
+                correo: datos.correo,
                 contrasena: datos.contrasena,
             });
             if (resultado.ok) {
-                toast.add({ title: 'Cuenta creada correctamente.', type: 'success' });
-                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.email.trim().toLowerCase())}`);
+                if (resultado.mensaje) {
+                    toast.add({ title: resultado.mensaje, type: 'success' });
+                }
+                router.replace(`/autenticacion/inicio-sesion?correo=${encodeURIComponent(datos.correo.trim().toLowerCase())}`);
                 return;
             }
             if (resultado.estado === 409) {
-                setError('email', { message: 'Este correo ya tiene una cuenta.' });
+                setError('correo', { message: resultado.errores?.correo ?? resultado.mensaje });
                 return;
             }
-            if (resultado.estado === 400) {
+            if (resultado.errores) {
                 const errores = resultado.errores;
                 if (errores?.nombres) setError('nombres', { message: errores.nombres });
-                if (errores?.email) setError('email', { message: errores.email });
+                if (errores?.correo) setError('correo', { message: errores.correo });
                 if (errores?.contrasena) setError('contrasena', { message: errores.contrasena });
             }
-            toast.add({ title: resultado.mensaje, type: 'error' });
+            if (resultado.mensaje) {
+                toast.add({ title: resultado.mensaje, type: 'error' });
+            }
         } catch {
             toast.add({ title: 'No se pudo completar la solicitud. Inténtalo de nuevo.', type: 'error' });
         }
@@ -86,21 +90,21 @@ export const RegistroFormulario = () => {
                 }
             />
             <CampoFormulario
-                id="email" etiqueta="Correo electrónico" icono={LuMail} type="email"
+                id="correo" etiqueta="Correo electrónico" icono={LuMail} type="email"
                 placeholder="nombre@correo.com" autoComplete="email" maxLength={254}
-                {...register('email', {
+                {...register('correo', {
                     required: 'Ingresa tu correo.',
-                    onChange: () => { void trigger('email'); },
+                    onChange: () => { void trigger('correo'); },
                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Ingresa un correo válido.' },
                 })}
-                error={errors.email?.message}
+                error={errors.correo?.message}
             />
 
             <CampoContrasena
                 id="contrasena" etiqueta="Contraseña" icono={LuLock}
                 placeholder="Crea una contraseña" autoComplete="new-password"
                 {...register('contrasena', {
-                    required: 'Usa al menos 6 caracteres.',
+                    required: 'Ingresa tu contraseña.',
                     minLength: { value: 6, message: 'Usa al menos 6 caracteres.' },
                     onChange: () => {
                         void trigger(touchedFields.confirmarContrasena || isSubmitted
