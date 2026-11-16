@@ -16,6 +16,7 @@ export const Modelador = () => {
             const nuevaPantalla: NodoPantalla = {
                 id: `pantalla-${numero}`,
                 type: "pantalla",
+                // Posición inicial de la nueva pantalla en el lienzo
                 position: {
                     x: 80 + ((numero - 1) % 3) * 290,
                     y: 80 + Math.floor((numero - 1) / 3) * 120,
