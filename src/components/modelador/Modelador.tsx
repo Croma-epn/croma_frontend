@@ -11,7 +11,7 @@ export const Modelador = () => {
 
     const agregarPantalla = () => {
         setPantallas((actuales) => {
-            const numero = actuales.length + 1;
+            const numero = actuales.length + 1; // Determina el número de la nueva pantalla basado en la cantidad actual
 
             const nuevaPantalla: NodoPantalla = {
                 id: `pantalla-${numero}`,
@@ -22,8 +22,8 @@ export const Modelador = () => {
                     y: 80 + Math.floor((numero - 1) / 3) * 120,
                 },
                 data: {
-                    codigo: `VC-${String(numero).padStart(2, "0")}`,
-                    nombre: `Nueva pantalla ${numero}`,
+                    codigo: `VC-${String(numero).padStart(2, "0")}`, // Código de la pantalla con formato VC-01, VC-02, etc
+                    nombre: `Nueva pantalla ${numero}`, // Nombre de la pantalla
                 },
                 selected: true, // Marcar la nueva pantalla como seleccionada
             };
