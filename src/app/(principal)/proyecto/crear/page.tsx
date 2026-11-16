@@ -1,6 +1,6 @@
 import { ProyectoFormulario } from "@/components/proyecto/proyecto-formulario/ProyectoFormulario";
 
-export default function ProyectoPagina() {
+export default function CreacionProyectoPagina() {
     return (
         <>
             <ProyectoFormulario />
