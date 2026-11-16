@@ -46,7 +46,7 @@ export const DialogoCierreSesion = ({
                     </DialogDescription>
                 </div>
                 <div className="flex flex-wrap justify-center gap-3">
-                    <DialogClose disabled={cerrando} render={<button type="button" ref={botonCancelar} className="boton boton-secundario py-1.5 text-cuerpo hover:bg-fondo" />}>
+                    <DialogClose disabled={cerrando} render={<button type="button" ref={botonCancelar} className="boton boton-secundario py-1.5 text-cuerpo" />}>
                         Seguir aquí
                     </DialogClose>
                     <button type="button" disabled={cerrando} onClick={onConfirmar} className="boton boton-peligro py-1.5 text-cuerpo hover:bg-error-suave">

@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { LuEye, LuEyeOff } from "react-icons/lu";
-import { CampoFormulario, type CampoFormularioProps } from "../campo-formulario/CampoFormulario";
+import { CampoFormulario, type CampoFormularioInputProps } from "../campo-formulario/CampoFormulario";
 
-export const CampoContrasena = (propiedades: Omit<CampoFormularioProps, 'type' | 'accion'>) => {
+export const CampoContrasena = (propiedades: Omit<CampoFormularioInputProps, 'type' | 'accion' | 'multilinea'>) => {
     const [visible, setVisible] = useState(false);
     const IconoVisibilidad = visible ? LuEye : LuEyeOff;
     return (

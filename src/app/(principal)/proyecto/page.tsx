@@ -1,8 +1,9 @@
+import { ProyectoFormulario } from "@/components/proyecto/proyecto-formulario/ProyectoFormulario";
 
 export default function ProyectoPagina() {
     return (
-        <div>
-            <h1>Proyecto</h1>
-        </div>
+        <>
+            <ProyectoFormulario />
+        </>
     );
 }
