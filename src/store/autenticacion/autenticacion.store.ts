@@ -15,6 +15,7 @@ import {
 } from "@/actions/inicio-sesion/cerrar-sesion";
 import type { CredencialesInicioSesion } from "@/interfaces/autenticacion/autenticacion";
 import type { Usuario } from "@/interfaces/usuario/usuario";
+import { useProyectoBorradorStore } from "../proyecto/proyecto-borrador.store";
 
 type EstadoSesion =
     | "sin-comprobar"
@@ -111,6 +112,8 @@ export const useAutenticacionStore = create<AutenticacionStore>()((set, get) => 
                 try {
                     const resultado = await solicitarCierreSesion();
                     if (resultado.ok) {
+                        useProyectoBorradorStore.getState().limpiarBorrador(); // Limpia el borrador al cerrar sesión
+
                         set({ usuario: null, estado: "no-autenticado", mensajeError: null });
                     } else {
                         // Conserva el usuario para poder reintentar el cierre.

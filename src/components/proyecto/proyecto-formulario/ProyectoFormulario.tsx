@@ -8,6 +8,7 @@ import { LuAlignLeft, LuArrowRight, LuFolder, LuImage, LuInfo, LuPlus } from "re
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { fuenteTitulo } from "@/config/fuentes";
+import { useProyectoBorradorStore } from "@/store/proyecto/proyecto-borrador.store";
 
 interface ProyectoFormularioDatos {
     nombre: string;
@@ -15,9 +16,15 @@ interface ProyectoFormularioDatos {
 }
 
 export const ProyectoFormulario = () => {
+
+    const borrador = useProyectoBorradorStore((estado) => estado.borrador);
+    const actualizarBorrador = useProyectoBorradorStore(
+        (estado) => estado.actualizarBorrador
+    );
+
     const { register, handleSubmit, control, formState: { errors } } = useForm<ProyectoFormularioDatos>({
         mode: "all",
-        defaultValues: { nombre: "", descripcion: "" },
+        defaultValues: { nombre: borrador.nombre, descripcion: borrador.descripcion },
     });
     const [nombre, descripcion] = useWatch({ control, name: ["nombre", "descripcion"] });
     const [portada, setPortada] = useState<{ archivo: File; url: string } | null>(null);
@@ -31,6 +38,27 @@ export const ProyectoFormulario = () => {
         if (!portada) return;
         return () => URL.revokeObjectURL(portada.url);
     }, [portada]);
+
+    // Carga la portada del borrador al montar el componente, si existe.
+    useEffect(() => {
+        const archivo = useProyectoBorradorStore.getState().borrador.portada;
+
+        if (!archivo) return;
+
+        const url = URL.createObjectURL(archivo); // Crea un objeto URL para la imagen de portada
+        const imagen = new window.Image(); // Crea un objeto de imagen para verificar si se puede cargar correctamente
+
+        imagen.onload = () => {
+            setPortada({ archivo, url });
+        };
+
+        imagen.src = url; // Asigna la URL al objeto de imagen para iniciar la carga
+
+        return () => {
+            imagen.onload = null;
+            URL.revokeObjectURL(url);
+        };
+    }, []);
 
     const seleccionarPortada = async (evento: ChangeEvent<HTMLInputElement>) => {
         const archivo = evento.target.files?.[0];
@@ -65,14 +93,19 @@ export const ProyectoFormulario = () => {
         if (seleccion !== seleccionActual.current) return;
 
         setPortada({ archivo, url: URL.createObjectURL(archivo) });
+        actualizarBorrador({ portada: archivo });
         setAvisoPortada("");
     };
 
     const quitarPortada = () => {
         seleccionActual.current += 1;
         setPortada(null);
+        actualizarBorrador({ portada: null }); // Actualiza el borrador para reflejar que no hay portada
         setAvisoPortada("");
-        if (selectorPortada.current) selectorPortada.current.value = "";
+
+        if (selectorPortada.current) {
+            selectorPortada.current.value = "";
+        }
     };
 
     const crearProyecto = () => {
@@ -81,8 +114,8 @@ export const ProyectoFormulario = () => {
 
     return (
         <main className="flex flex-1 justify-center px-4 py-5 sm:px-6 sm:py-6">
-            <section aria-labelledby="crear-proyecto-titulo" className="w-full max-w-[680px]">
-                <h1 id="crear-proyecto-titulo" className={`mb-4 flex items-center justify-center gap-2.5 text-[clamp(25px,2.3vw,31px)] leading-[1.2] font-extrabold tracking-[-0.05em] text-texto ${fuenteTitulo.className}`}>
+            <section aria-labelledby="crear-proyecto-titulo" className="w-full max-w-170">
+                <h1 id="crear-proyecto-titulo" className={`mb-4 flex items-center justify-center gap-2.5 text-[clamp(25px,2.3vw,31px)] leading-[1.2] font-extrabold tracking-tighter text-texto ${fuenteTitulo.className}`}>
                     <LuPlus aria-hidden="true" className="size-5.5 shrink-0 text-principal" />
                     Crear proyecto
                 </h1>
@@ -93,7 +126,11 @@ export const ProyectoFormulario = () => {
                             <CampoFormulario
                                 id="nombre-proyecto"
                                 {...register("nombre", {
-                                    validate: (valor) => !!valor.trim() || "El nombre del proyecto es obligatorio.",
+                                    validate: (valor) =>
+                                        !!valor.trim() || "El nombre del proyecto es obligatorio.",
+                                    onChange: (evento) => {
+                                        actualizarBorrador({ nombre: evento.target.value });
+                                    },
                                 })}
                                 etiqueta="Nombre del proyecto"
                                 icono={LuFolder}
@@ -108,7 +145,11 @@ export const ProyectoFormulario = () => {
 
                         <CampoFormulario
                             id="descripcion-proyecto"
-                            {...register("descripcion")}
+                            {...register("descripcion", {
+                                onChange: (evento) => {
+                                    actualizarBorrador({ descripcion: evento.target.value });
+                                },
+                            })}
                             etiqueta="Descripción"
                             icono={LuAlignLeft}
                             placeholder="¿Para qué sirve la aplicación y a quién está dirigida?"
@@ -125,7 +166,7 @@ export const ProyectoFormulario = () => {
                                 Imagen de portada <span className="text-texto-secundario">(opcional)</span>
                             </label>
                             <div className="flex flex-wrap items-center gap-3.5">
-                                <div className="flex h-18 w-[118px] shrink-0 items-center justify-center overflow-hidden rounded-control border border-dashed border-borde bg-principal-palido">
+                                <div className="flex h-18 w-29.5 shrink-0 items-center justify-center overflow-hidden rounded-control border border-dashed border-borde bg-principal-palido">
                                     {portada ? (
                                         <Image src={portada.url} alt={`Vista previa de la portada: ${portada.archivo.name}`} width={118} height={72} unoptimized className="h-full w-full object-cover" />
                                     ) : (
@@ -156,7 +197,7 @@ export const ProyectoFormulario = () => {
                         </div>
                     </div>
 
-                    <div className="mt-5 flex flex-wrap justify-end gap-[9px] border-t border-borde pt-4">
+                    <div className="mt-5 flex flex-wrap justify-end gap-2.25 border-t border-borde pt-4">
                         <Link href="/proyectos" className="boton boton-secundario min-h-9 py-2 text-cuerpo leading-tight">Cancelar</Link>
                         <BotonFormulario anchoCompleto={false} compacto>
                             Crear proyecto
