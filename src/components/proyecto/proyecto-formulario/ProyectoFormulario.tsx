@@ -1,12 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 import { LuAlignLeft, LuArrowRight, LuFolder, LuImage, LuPlus } from "react-icons/lu";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
 import { fuenteTitulo } from "@/config/fuentes";
 
+interface ProyectoFormularioDatos {
+    nombre: string;
+    descripcion: string;
+}
+
 export const ProyectoFormulario = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm<ProyectoFormularioDatos>({
+        mode: "all",
+        defaultValues: { nombre: "", descripcion: "" },
+    });
+
+    const crearProyecto = () => {
+        // La integración de creación se añadirá cuando esté disponible el endpoint.
+    };
+
     return (
         <main className="flex flex-1 justify-center px-4 py-5 sm:px-6 sm:py-6">
             <section aria-labelledby="crear-proyecto-titulo" className="w-full max-w-[680px]">
@@ -15,20 +30,25 @@ export const ProyectoFormulario = () => {
                     Crear proyecto
                 </h1>
 
-                <form noValidate onSubmit={(evento) => evento.preventDefault()} className="rounded-tarjeta border border-borde bg-superficie p-5 shadow-tarjeta sm:p-6">
+                <form noValidate onSubmit={handleSubmit(crearProyecto)} className="rounded-tarjeta border border-borde bg-superficie p-5 shadow-tarjeta sm:p-6">
                     <div className="flex flex-col gap-5">
-                        <CampoFormulario
-                            id="nombre-proyecto"
-                            name="nombre"
-                            etiqueta="Nombre del proyecto"
-                            icono={LuFolder}
-                            placeholder="Ej. Sistema de tutorías"
-                            required
-                        />
+                        <div className="pb-2">
+                            <CampoFormulario
+                                id="nombre-proyecto"
+                                {...register("nombre", {
+                                    validate: (valor) => !!valor.trim() || "El nombre del proyecto es obligatorio.",
+                                })}
+                                etiqueta="Nombre del proyecto"
+                                icono={LuFolder}
+                                placeholder="Ej. Sistema de tutorías"
+                                required
+                                error={errors.nombre?.message}
+                            />
+                        </div>
 
                         <CampoFormulario
                             id="descripcion-proyecto"
-                            name="descripcion"
+                            {...register("descripcion")}
                             etiqueta="Descripción"
                             icono={LuAlignLeft}
                             placeholder="¿Para qué sirve la aplicación y a quién está dirigida?"
