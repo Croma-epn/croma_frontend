@@ -24,13 +24,13 @@ export const Modelador = () => {
                     codigo: `VC-${String(numero).padStart(2, "0")}`,
                     nombre: `Nueva pantalla ${numero}`,
                 },
-                selected: true,
+                selected: true, // Marcar la nueva pantalla como seleccionada
             };
 
             return [
                 ...actuales.map((pantalla) => ({
                     ...pantalla,
-                    selected: false,
+                    selected: false, // Las pantallas existentes se deseleccionan al agregar una nueva
                 })),
                 nuevaPantalla,
             ];

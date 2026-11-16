@@ -8,6 +8,7 @@ import type { NodeProps } from "@xyflow/react";
 import type { NodoPantalla } from "@/interfaces/modelador/elementos/pantalla";
 import { Pantalla } from "@/components/modelador/elementos/Pantalla";
 
+// PantallaNodo recibe la selección de React Flow y la pasa al componente visual
 const PantallaNodo = ({ data, selected }: NodeProps<NodoPantalla>) => {
     return (
         <Pantalla
@@ -74,6 +75,7 @@ export const Lienzo = ({ pantallas }: LienzoProps) => {
 
             <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2 rounded-md bg-fondo/90 px-2 py-1 text-micro text-texto-secundario">
                 <Grid2X2 aria-hidden="true" className="size-4" />
+                {/* Contador de elementos en el lienzo */}
                 <span>
                     Lienzo de modelado · {pantallas.length}{" "}
                     {pantallas.length === 1 ? "elemento" : "elementos"}
