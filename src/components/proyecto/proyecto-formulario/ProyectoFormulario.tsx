@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { LuAlignLeft, LuArrowRight, LuFolder, LuImage, LuPlus } from "react-icons/lu";
 import { CampoFormulario } from "@/components/formulario/campo-formulario/CampoFormulario";
 import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonFormulario";
@@ -13,10 +13,11 @@ interface ProyectoFormularioDatos {
 }
 
 export const ProyectoFormulario = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm<ProyectoFormularioDatos>({
+    const { register, handleSubmit, control, formState: { errors } } = useForm<ProyectoFormularioDatos>({
         mode: "all",
         defaultValues: { nombre: "", descripcion: "" },
     });
+    const [nombre, descripcion] = useWatch({ control, name: ["nombre", "descripcion"] });
 
     const crearProyecto = () => {
         // La integración de creación se añadirá cuando esté disponible el endpoint.
@@ -31,8 +32,8 @@ export const ProyectoFormulario = () => {
                 </h1>
 
                 <form noValidate onSubmit={handleSubmit(crearProyecto)} className="rounded-tarjeta border border-borde bg-superficie p-5 shadow-tarjeta sm:p-6">
-                    <div className="flex flex-col gap-5">
-                        <div className="pb-2">
+                    <div className="flex flex-col gap-7">
+                        <div>
                             <CampoFormulario
                                 id="nombre-proyecto"
                                 {...register("nombre", {
@@ -42,7 +43,10 @@ export const ProyectoFormulario = () => {
                                 icono={LuFolder}
                                 placeholder="Ej. Sistema de tutorías"
                                 required
+                                maxLength={30}
+                                contador={nombre.length}
                                 error={errors.nombre?.message}
+                                aviso={nombre.length === 30 ? "Alcanzaste el máximo de 30 caracteres." : undefined}
                             />
                         </div>
 
@@ -54,6 +58,9 @@ export const ProyectoFormulario = () => {
                             placeholder="¿Para qué sirve la aplicación y a quién está dirigida?"
                             multilinea
                             rows={3}
+                            maxLength={150}
+                            contador={descripcion.length}
+                            aviso={descripcion.length === 150 ? "Alcanzaste el máximo de 150 caracteres." : undefined}
                         />
 
                         <div>

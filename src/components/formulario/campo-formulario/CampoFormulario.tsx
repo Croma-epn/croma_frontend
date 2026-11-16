@@ -54,15 +54,15 @@ export const CampoFormulario = ({ etiqueta, icono: Icono, id, error, aviso, acci
                 {renderizarControl()}
                 {accion}
             </div>
-            <div className={contador !== undefined ? "mt-1.5 space-y-1.5" : "absolute top-full right-0 left-0 mt-1.5"}>
+            <div className={contador !== undefined ? "relative mt-1.5" : "absolute top-full right-0 left-0 mt-1.5"}>
                 {contador !== undefined && (
                     <p id={id ? `${id}-contador` : undefined} className="text-nota text-texto-secundario">
                         {contador}{propiedades.maxLength !== undefined ? `/${propiedades.maxLength}` : ''} caracteres
                     </p>
                 )}
                 {mensaje && (
-                    <p id={id ? `${id}-mensaje` : undefined} role="status" className={`flex items-start gap-1 text-nota leading-4 ${error ? 'text-error' : 'font-semibold text-advertencia-texto'}`}>
-                        {!error && <LuInfo aria-hidden="true" className="mt-0.5 size-3 shrink-0" />}
+                    <p id={id ? `${id}-mensaje` : undefined} role="status" className={`flex items-start gap-1 text-nota leading-4 ${contador !== undefined ? 'absolute top-full right-0 left-0 mt-1.5' : ''} ${error ? 'text-error' : 'font-semibold text-advertencia-texto'}`}>
+                        {mensaje && !error && <LuInfo aria-hidden="true" className="mt-0.5 size-3 shrink-0" />}
                         <span>{mensaje}</span>
                     </p>
                 )}
