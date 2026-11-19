@@ -7,7 +7,7 @@ export default function ProyectosPagina() {
                 <h1>Mis proyectos</h1>
             </div>
             <div className='boton boton-primario m-15'>
-                <Link href="/proyecto">Crear proyecto</Link>
+                <Link href="/proyecto/crear">Crear proyecto</Link>
             </div>
         </>
     );
