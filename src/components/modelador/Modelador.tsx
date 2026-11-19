@@ -5,6 +5,7 @@ import type { OnNodesChange } from "@xyflow/react";
 import { Lienzo } from "./lienzo/Lienzo";
 import { PanelHerramientas } from "./panel-herramientas/PanelHerramientas";
 import { useState } from "react";
+import { toast } from "../ui/toast";
 
 export const Modelador = () => {
 
@@ -40,6 +41,12 @@ export const Modelador = () => {
                 })),
                 nuevaPantalla,
             ];
+        });
+
+        // Mostrar un toast de éxito al agregar la pantalla
+        toast.add({
+            title: "Pantalla agregada al lienzo.",
+            type: "success",
         });
     };
 

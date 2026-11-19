@@ -9,9 +9,10 @@ interface PantallaProps {
 export const Pantalla = ({ codigo, nombre, seleccionada = false }: PantallaProps) => {
     return (
         <div
-            className={`min-h-20 w-65 overflow-hidden rounded-marca border bg-superficie ${seleccionada
-                ? "border-principal ring-2 ring-principal/15 shadow-sm"
-                : "border-borde shadow-[0_7px_20px_#281d400c]"
+            className={`min-h-20 w-65 overflow-hidden rounded-marca border-2 bg-superficie 
+                ${seleccionada
+                    ? "border-principal shadow-[0_0_0_4px_#37256212,0_10px_25px_#33225b18]"
+                    : "border-borde shadow-[0_7px_20px_#281d400c]"
                 }`}
         >
             <div className="flex h-9.25 items-center gap-1.75 border-b border-borde bg-[#f5f4f8] pl-3 pr-1.5">

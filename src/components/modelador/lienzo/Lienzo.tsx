@@ -131,6 +131,7 @@ export const Lienzo = ({
                 />
             </ReactFlow>
 
+            // Mensaje cuando no hay elementos en el lienzo
             {pantallas.length === 0 && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
                     <div className="w-full max-w-85 text-center">
