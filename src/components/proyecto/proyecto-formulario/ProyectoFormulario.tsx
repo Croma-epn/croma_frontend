@@ -10,6 +10,10 @@ import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonF
 import { fuenteTitulo } from "@/config/fuentes";
 import { useProyectoBorradorStore } from "@/store/proyecto/proyecto-borrador.store";
 
+import { useRouter } from "next/navigation";
+import { crearProyecto as solicitarCreacionProyecto } from "@/actions/proyecto/crear-proyecto";
+import { toast } from "@/components/ui/toast";
+
 interface ProyectoFormularioDatos {
     nombre: string;
     descripcion: string;
@@ -17,12 +21,19 @@ interface ProyectoFormularioDatos {
 
 export const ProyectoFormulario = () => {
 
+    const router = useRouter();
+    const creacionEnCurso = useRef(false);
+
+    const limpiarBorrador = useProyectoBorradorStore(
+        (estado) => estado.limpiarBorrador
+    );
+
     const borrador = useProyectoBorradorStore((estado) => estado.borrador);
     const actualizarBorrador = useProyectoBorradorStore(
         (estado) => estado.actualizarBorrador
     );
 
-    const { register, handleSubmit, control, formState: { errors } } = useForm<ProyectoFormularioDatos>({
+    const { register, handleSubmit, control, setError, formState: { errors } } = useForm<ProyectoFormularioDatos>({
         mode: "all",
         defaultValues: { nombre: borrador.nombre, descripcion: borrador.descripcion },
     });
