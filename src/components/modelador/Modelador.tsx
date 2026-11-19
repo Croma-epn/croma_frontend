@@ -1,11 +1,16 @@
 "use client";
 
 import type { NodoPantalla } from "@/interfaces/modelador/elementos/pantalla";
+import type { OnNodesChange } from "@xyflow/react";
 import { Lienzo } from "./lienzo/Lienzo";
 import { PanelHerramientas } from "./panel-herramientas/PanelHerramientas";
 import { useState } from "react";
 
 export const Modelador = () => {
+
+    const actualizarPantallas: OnNodesChange<NodoPantalla> = (cambios) => {
+        setPantallas((actuales) => cambios.applyTo(actuales));
+    };
 
     const [pantallas, setPantallas] = useState<NodoPantalla[]>([]);
 
@@ -49,6 +54,7 @@ export const Modelador = () => {
                 <Lienzo
                     pantallas={pantallas}
                     onAgregarPantalla={agregarPantalla}
+                    onActualizarPantallas={actualizarPantallas}
                 />
             </section>
         </main>

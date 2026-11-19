@@ -1,14 +1,26 @@
 "use client";
 
-import { Background, BackgroundVariant, ReactFlow } from "@xyflow/react";
+import {
+    Background,
+    BackgroundVariant,
+    ReactFlow,
+    useNodesInitialized,
+    useReactFlow,
+} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Grid2X2, Smartphone } from "lucide-react";
 
-import type { NodeProps, ReactFlowInstance } from "@xyflow/react";
+import type {
+    NodeProps,
+    OnNodesChange,
+    ReactFlowInstance,
+} from "@xyflow/react";
 import type { NodoPantalla } from "@/interfaces/modelador/elementos/pantalla";
-import type { DragEvent } from "react";
+import type { DragEvent, RefObject } from "react";
 import { Pantalla } from "@/components/modelador/elementos/Pantalla";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { CentradoLienzo } from "../centrado-lienzo/CentradoLienzo";
+
 
 // PantallaNodo recibe la selección de React Flow y la pasa al componente visual
 const PantallaNodo = ({ data, selected }: NodeProps<NodoPantalla>) => {
@@ -28,11 +40,13 @@ const tiposDeNodo = {
 interface LienzoProps {
     pantallas: NodoPantalla[];
     onAgregarPantalla: (posicion: NodoPantalla["position"]) => void;
+    onActualizarPantallas: OnNodesChange<NodoPantalla>;
 }
 
 export const Lienzo = ({
     pantallas,
     onAgregarPantalla,
+    onActualizarPantallas,
 }: LienzoProps) => {
 
     const instanciaReactFlow =
@@ -70,17 +84,22 @@ export const Lienzo = ({
         onAgregarPantalla(posicion);
     };
 
+    const contenedorLienzo = useRef<HTMLDivElement | null>(null);
+    const nuevoElementoId = pantallas[pantallas.length - 1]?.id;
+
     return (
         <div
             className="relative h-full w-full bg-fondo"
             onDragOver={permitirSoltar}
             onDrop={soltarElemento}
+            ref={contenedorLienzo}
         >
             <ReactFlow<NodoPantalla>
                 nodeOrigin={[0.5, 0.5]}
                 onInit={(instancia) => {
                     instanciaReactFlow.current = instancia;
                 }}
+                onNodesChange={onActualizarPantallas}
                 style={{ colorScheme: "light" }}
                 nodes={pantallas}
                 nodeTypes={tiposDeNodo}
@@ -104,6 +123,11 @@ export const Lienzo = ({
                     size={2}
                     color="var(--color-neutro-200)"
                     bgColor="var(--color-fondo)"
+                />
+
+                <CentradoLienzo
+                    nuevoElementoId={nuevoElementoId}
+                    contenedor={contenedorLienzo}
                 />
             </ReactFlow>
 
