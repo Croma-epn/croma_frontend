@@ -21,6 +21,14 @@ export const PanelHerramientas = ({
                 type="button"
                 className="mt-4 flex w-full cursor-pointer items-center gap-3 rounded-lg border border-[#ded9e9] bg-[#f9f7fc] p-3 text-etiqueta font-bold text-texto transition-[border-color,background-color,transform] duration-150 hover:-translate-y-px hover:border-[#9781c9] hover:bg-principal-palido focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-principal"
                 onClick={onAgregarPantalla}
+                draggable
+                onDragStart={(evento) => {
+                    evento.dataTransfer.setData(
+                        "application/x-croma-elemento",
+                        "pantalla",
+                    );
+                    evento.dataTransfer.effectAllowed = "copy";
+                }}
             >
                 <span className="flex size-8 items-center justify-center rounded-md bg-principal-suave text-principal">
                     <Smartphone aria-hidden="true" className="size-4" />

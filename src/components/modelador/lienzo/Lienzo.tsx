@@ -4,9 +4,11 @@ import { Background, BackgroundVariant, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Grid2X2, Smartphone } from "lucide-react";
 
-import type { NodeProps } from "@xyflow/react";
+import type { NodeProps, ReactFlowInstance } from "@xyflow/react";
 import type { NodoPantalla } from "@/interfaces/modelador/elementos/pantalla";
+import type { DragEvent } from "react";
 import { Pantalla } from "@/components/modelador/elementos/Pantalla";
+import { useRef } from "react";
 
 // PantallaNodo recibe la selección de React Flow y la pasa al componente visual
 const PantallaNodo = ({ data, selected }: NodeProps<NodoPantalla>) => {
@@ -25,12 +27,60 @@ const tiposDeNodo = {
 
 interface LienzoProps {
     pantallas: NodoPantalla[];
+    onAgregarPantalla: (posicion: NodoPantalla["position"]) => void;
 }
 
-export const Lienzo = ({ pantallas }: LienzoProps) => {
+export const Lienzo = ({
+    pantallas,
+    onAgregarPantalla,
+}: LienzoProps) => {
+
+    const instanciaReactFlow =
+        useRef<ReactFlowInstance<NodoPantalla> | null>(null);
+
+    const permitirSoltar = (evento: DragEvent<HTMLDivElement>) => {
+        if (
+            !evento.dataTransfer.types.includes(
+                "application/x-croma-elemento",
+            )
+        ) {
+            return;
+        }
+
+        evento.preventDefault();
+        evento.dataTransfer.dropEffect = "copy";
+    };
+
+    const soltarElemento = (evento: DragEvent<HTMLDivElement>) => {
+        evento.preventDefault();
+
+        const tipo = evento.dataTransfer.getData(
+            "application/x-croma-elemento",
+        );
+
+        if (tipo !== "pantalla" || !instanciaReactFlow.current) {
+            return;
+        }
+
+        const posicion = instanciaReactFlow.current.screenToFlowPosition({
+            x: evento.clientX,
+            y: evento.clientY,
+        });
+
+        onAgregarPantalla(posicion);
+    };
+
     return (
-        <div className="relative h-full w-full bg-fondo">
-            <ReactFlow
+        <div
+            className="relative h-full w-full bg-fondo"
+            onDragOver={permitirSoltar}
+            onDrop={soltarElemento}
+        >
+            <ReactFlow<NodoPantalla>
+                nodeOrigin={[0.5, 0.5]}
+                onInit={(instancia) => {
+                    instanciaReactFlow.current = instancia;
+                }}
                 style={{ colorScheme: "light" }}
                 nodes={pantallas}
                 nodeTypes={tiposDeNodo}
@@ -71,7 +121,7 @@ export const Lienzo = ({ pantallas }: LienzoProps) => {
                         </p>
                     </div>
                 </div>
-            )};
+            )}
 
             <div className="pointer-events-none absolute bottom-3 right-3 flex items-center gap-2 rounded-md bg-fondo/90 px-2 py-1 text-micro text-texto-secundario">
                 <Grid2X2 aria-hidden="true" className="size-4" />
