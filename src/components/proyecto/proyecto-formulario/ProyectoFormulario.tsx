@@ -137,12 +137,42 @@ export const ProyectoFormulario = () => {
                 limpiarBorrador();
                 router.replace(`/proyecto/${resultado.proyecto.id}`);
 
+                toast.add({
+                    title: resultado.mensaje,
+                    type: "success",
+                });
+
                 return;
             }
 
+            const errorNombre = resultado.errores.nombre?.[0];
+            const errorDescripcion = resultado.errores.descripcion?.[0];
+            const errorPortada = resultado.errores.portada?.[0];
 
+            if (errorNombre) {
+                setError("nombre", { type: "server", message: errorNombre });
+            }
+
+            if (errorDescripcion) {
+                setError("descripcion", { type: "server", message: errorDescripcion });
+            }
+
+            if (errorPortada) {
+                setAvisoPortada(errorPortada);
+            }
+
+            if (!errorNombre && !errorDescripcion && !errorPortada) {
+                toast.add({
+                    title: resultado.mensaje
+                        || "No se pudo crear el proyecto. Inténtalo de nuevo.",
+                    type: "error",
+                });
+            }
         } catch {
-
+            toast.add({
+                title: "No se pudo completar la solicitud. Inténtalo de nuevo.",
+                type: "error",
+            });
         } finally {
             creacionEnCurso.current = false;
         }
