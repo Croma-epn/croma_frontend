@@ -10,6 +10,10 @@ import { BotonFormulario } from "@/components/formulario/boton-formulario/BotonF
 import { fuenteTitulo } from "@/config/fuentes";
 import { useProyectoBorradorStore } from "@/store/proyecto/proyecto-borrador.store";
 
+import { useRouter } from "next/navigation";
+import { crearProyecto as solicitarCreacionProyecto } from "@/actions/proyecto/crear-proyecto";
+import { toast } from "@/components/ui/toast";
+
 interface ProyectoFormularioDatos {
     nombre: string;
     descripcion: string;
@@ -17,12 +21,19 @@ interface ProyectoFormularioDatos {
 
 export const ProyectoFormulario = () => {
 
+    const router = useRouter();
+    const creacionEnCurso = useRef(false);
+
+    const limpiarBorrador = useProyectoBorradorStore(
+        (estado) => estado.limpiarBorrador
+    );
+
     const borrador = useProyectoBorradorStore((estado) => estado.borrador);
     const actualizarBorrador = useProyectoBorradorStore(
         (estado) => estado.actualizarBorrador
     );
 
-    const { register, handleSubmit, control, formState: { errors } } = useForm<ProyectoFormularioDatos>({
+    const { register, handleSubmit, control, setError, formState: { errors, isSubmitting } } = useForm<ProyectoFormularioDatos>({
         mode: "all",
         defaultValues: { nombre: borrador.nombre, descripcion: borrador.descripcion },
     });
@@ -108,8 +119,63 @@ export const ProyectoFormulario = () => {
         }
     };
 
-    const crearProyecto = () => {
-        // La integración de creación se añadirá cuando esté disponible el endpoint.
+    const onSubmit = async (datos: ProyectoFormularioDatos) => {
+        if (creacionEnCurso.current) return;
+        creacionEnCurso.current = true;
+
+        try {
+            const archivoPortada =
+                useProyectoBorradorStore.getState().borrador.portada;
+
+            const resultado = await solicitarCreacionProyecto({
+                nombre: datos.nombre,
+                descripcion: datos.descripcion,
+                portada: archivoPortada ?? undefined,
+            });
+
+            if (resultado.ok) {
+                limpiarBorrador();
+                router.replace(`/proyecto/${resultado.proyecto.id}`);
+
+                toast.add({
+                    title: resultado.mensaje,
+                    type: "success",
+                });
+
+                return;
+            }
+
+            const errorNombre = resultado.errores.nombre?.[0];
+            const errorDescripcion = resultado.errores.descripcion?.[0];
+            const errorPortada = resultado.errores.portada?.[0];
+
+            if (errorNombre) {
+                setError("nombre", { type: "server", message: errorNombre });
+            }
+
+            if (errorDescripcion) {
+                setError("descripcion", { type: "server", message: errorDescripcion });
+            }
+
+            if (errorPortada) {
+                setAvisoPortada(errorPortada);
+            }
+
+            if (!errorNombre && !errorDescripcion && !errorPortada) {
+                toast.add({
+                    title: resultado.mensaje
+                        || "No se pudo crear el proyecto. Inténtalo de nuevo.",
+                    type: "error",
+                });
+            }
+        } catch {
+            toast.add({
+                title: "No se pudo completar la solicitud. Inténtalo de nuevo.",
+                type: "error",
+            });
+        } finally {
+            creacionEnCurso.current = false;
+        }
     };
 
     return (
@@ -120,7 +186,11 @@ export const ProyectoFormulario = () => {
                     Crear proyecto
                 </h1>
 
-                <form noValidate onSubmit={handleSubmit(crearProyecto)} className="rounded-tarjeta border border-borde bg-superficie p-5 shadow-tarjeta sm:p-6">
+                <form noValidate
+                    onSubmit={(evento) => {
+                        void handleSubmit(onSubmit)(evento);
+                    }}
+                    aria-busy={isSubmitting} className="rounded-tarjeta border border-borde bg-superficie p-5 shadow-tarjeta sm:p-6">
                     <div className="flex flex-col gap-7">
                         <div>
                             <CampoFormulario
@@ -157,6 +227,7 @@ export const ProyectoFormulario = () => {
                             rows={3}
                             maxLength={150}
                             contador={descripcion.length}
+                            error={errors.descripcion?.message}
                             aviso={descripcion.length === 150 ? "Alcanzaste el máximo de 150 caracteres." : undefined}
                         />
 
@@ -199,8 +270,12 @@ export const ProyectoFormulario = () => {
 
                     <div className="mt-5 flex flex-wrap justify-end gap-2.25 border-t border-borde pt-4">
                         <Link href="/proyectos" className="boton boton-secundario min-h-9 py-2 text-cuerpo leading-tight">Cancelar</Link>
-                        <BotonFormulario anchoCompleto={false} compacto>
-                            Crear proyecto
+                        <BotonFormulario
+                            anchoCompleto={false}
+                            compacto
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? "Creando proyecto…" : "Crear proyecto"}
                             <LuArrowRight aria-hidden="true" className="size-4" />
                         </BotonFormulario>
                     </div>

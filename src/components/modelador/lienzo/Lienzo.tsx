@@ -4,8 +4,6 @@ import {
     Background,
     BackgroundVariant,
     ReactFlow,
-    useNodesInitialized,
-    useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Grid2X2, Smartphone } from "lucide-react";
@@ -16,9 +14,9 @@ import type {
     ReactFlowInstance,
 } from "@xyflow/react";
 import type { NodoPantalla } from "@/interfaces/modelador/elementos/pantalla";
-import type { DragEvent, RefObject } from "react";
+import type { DragEvent } from "react";
 import { Pantalla } from "@/components/modelador/elementos/Pantalla";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { CentradoLienzo } from "../centrado-lienzo/CentradoLienzo";
 
 
@@ -131,7 +129,7 @@ export const Lienzo = ({
                 />
             </ReactFlow>
 
-            // Mensaje cuando no hay elementos en el lienzo
+            {/* Mensaje cuando no hay elementos en el lienzo */}
             {pantallas.length === 0 && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
                     <div className="w-full max-w-85 text-center">
