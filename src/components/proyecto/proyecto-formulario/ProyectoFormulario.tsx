@@ -120,7 +120,32 @@ export const ProyectoFormulario = () => {
     };
 
     const onSubmit = async (datos: ProyectoFormularioDatos) => {
+        if (creacionEnCurso.current) return;
+        creacionEnCurso.current = true;
 
+        try {
+            const archivoPortada =
+                useProyectoBorradorStore.getState().borrador.portada;
+
+            const resultado = await solicitarCreacionProyecto({
+                nombre: datos.nombre,
+                descripcion: datos.descripcion,
+                portada: archivoPortada ?? undefined,
+            });
+
+            if (resultado.ok) {
+                limpiarBorrador();
+                router.replace(`/proyecto/${resultado.proyecto.id}`);
+
+                return;
+            }
+
+
+        } catch {
+
+        } finally {
+            creacionEnCurso.current = false;
+        }
     };
 
     return (
