@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  # Se ejecuta cuando se hace push a la rama develop o main
+  push:
+    branches: [develop, main]
+  pull_request:
+  # Se ejecuta cuando se hace un pull request a la rama develop o main
+    branches: [develop, main]
+
+# Permisos para el token de GitHub Actions
+permissions:
+  contents: read
+
+# Define el trabajo de validación que se ejecutará en la máquina virtual de Ubuntu
+jobs:
+  validate:
+    name: Lint and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      # Configura Node.js y cachea las dependencias de npm
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      # Instala las dependencias del proyecto
+      - name: Install dependencies
+        run: npm ci
+
+      # Ejecuta ESLint para verificar la calidad del código 
+      - name: Run ESLint
+        run: npm run lint
+
+      # Ejecuta la construcción del proyecto Next.js
+      - name: Build Next.js
+        run: npm run build
