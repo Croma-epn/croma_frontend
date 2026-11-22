@@ -2,6 +2,7 @@ name: Pruebas funcionales E2E
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -106,9 +107,12 @@ jobs:
           npm ci
           npx playwright install --with-deps chromium
 
-      - name: Levantar Next.js
+      - name: Compilar Next.js
+        run: npm run build
+
+      - name: Levantar la compilación de Next.js
         run: |
-          npm run dev > "$RUNNER_TEMP/croma-frontend.log" 2>&1 &
+          npm run start > "$RUNNER_TEMP/croma-frontend.log" 2>&1 &
           curl -fsS --retry 60 --retry-all-errors --retry-delay 1 "http://localhost:3000/autenticacion/inicio-sesion" > /dev/null || { cat "$RUNNER_TEMP/croma-frontend.log"; exit 1; }
 
       - name: Ejecutar pruebas funcionales

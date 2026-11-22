@@ -15,7 +15,7 @@ permissions:
 # Define el trabajo de validación que se ejecutará en la máquina virtual de Ubuntu
 jobs:
   validate:
-    name: Lint and build
+    name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -40,6 +40,8 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      # Ejecuta la construcción del proyecto Next.js
-      - name: Build Next.js
-        run: npm run build
+  # Ejecuta las pruebas funcionales E2E después de que el trabajo de validación haya finalizado
+  e2e:
+    name: Pruebas funcionales E2E
+    needs: validate
+    uses: ./.github/workflows/e2e.yml
