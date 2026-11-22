@@ -1,0 +1,115 @@
+name: Pruebas funcionales E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      NEXT_PUBLIC_API_URL: "http://127.0.0.1:8000"
+      CROMA_TEST_CORREO: croma-ci@example.com
+      CROMA_TEST_CONTRASENA: CromaCi123
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: croma_db_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: croma_ci_local
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd "pg_isready -U postgres -d croma_db_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    steps:
+      - name: Descargar frontend
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Descargar backend
+        uses: actions/checkout@v6
+        with:
+          repository: Croma-epn/croma_backend
+          path: croma_backend
+          persist-credentials: false
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Preparar y levantar Django
+        working-directory: croma_backend
+        run: |
+          python -m pip install -r requirements.txt
+          SECRET_KEY="$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())')"
+
+          cat > .env <<EOF
+          DB_NAME=croma_db_ci
+          DB_USER=postgres
+          DB_PASSWORD=croma_ci_local
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          SECRET_KEY='$SECRET_KEY'
+          DEBUG=True
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          ALMACEN_IMAGENES=config.almacenamiento.falso.AlmacenFalso
+          EOF
+
+          python manage.py migrate --noinput
+          python manage.py runserver 127.0.0.1:8000 --noreload > "$RUNNER_TEMP/croma-backend.log" 2>&1 &
+          curl -fsS --retry 30 --retry-all-errors --retry-delay 1 "$NEXT_PUBLIC_API_URL/docs/" > /dev/null || { cat "$RUNNER_TEMP/croma-backend.log"; exit 1; }
+
+      - name: Crear la cuenta de prueba
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from urllib.request import Request, urlopen
+
+          datos = json.dumps({
+              "nombre": "Croma CI",
+              "correo": os.environ["CROMA_TEST_CORREO"],
+              "contrasena": os.environ["CROMA_TEST_CONTRASENA"],
+          }).encode()
+
+          solicitud = Request(
+              os.environ["NEXT_PUBLIC_API_URL"] + "/usuarios/registro/",
+              data=datos,
+              headers={"Content-Type": "application/json"},
+              method="POST",
+          )
+
+          with urlopen(solicitud, timeout=15) as respuesta:
+              print(f"Cuenta de prueba creada ({respuesta.status})")
+          PY
+
+      - name: Instalar frontend y Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Levantar Next.js
+        run: |
+          npm run dev > "$RUNNER_TEMP/croma-frontend.log" 2>&1 &
+          curl -fsS --retry 60 --retry-all-errors --retry-delay 1 "http://localhost:3000/autenticacion/inicio-sesion" > /dev/null || { cat "$RUNNER_TEMP/croma-frontend.log"; exit 1; }
+
+      - name: Ejecutar pruebas funcionales
+        run: npx playwright test
